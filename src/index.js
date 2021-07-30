@@ -59,6 +59,7 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
+
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
@@ -85,9 +86,16 @@ class Game extends React.Component {
     const winner = calculateWinner(current.squares);
 
     const moves = history.map((step, move) => {
-      const desc = move ?
-        'Go to move #' + move :
-        'Go to gane start';
+      let desc ='Go to gane start';
+      
+      if (move > 0) {
+        const moveClickIndex = calculateClickIndex(step.squares, history[move - 1].squares);
+        const moveCol = moveClickIndex % 3;
+        const moveRow = Math.floor(moveClickIndex / 3);
+        const moveSymbol = (move - 1) % 2 === 0 ? 'X' : 'O';
+        desc = `Go to move #${move}: ${moveSymbol}(${moveCol}, ${moveRow})`;
+      }
+        
       return (
         <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
@@ -134,6 +142,15 @@ function calculateWinner(squares) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return squares[a];
+    }
+  }
+  return null;
+}
+
+function calculateClickIndex(step, previousStep) {
+  for (let i = 0; i < step.length; i++) {
+    if (step[i] !== previousStep[i]) {
+      return i;
     }
   }
   return null;
